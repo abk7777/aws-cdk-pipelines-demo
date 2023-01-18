@@ -1,6 +1,8 @@
 import { Construct } from 'constructs';
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
+import { CdkpipelinesDemoStage } from './cdkpipelines-demo-stage';
+
 /**
  * The stack that defines the application pipeline
  */
@@ -27,6 +29,8 @@ export class CdkpipelinesDemoPipelineStack extends Stack {
         });
 
         // This is where we add the application stages
-        // ...
+        pipeline.addStage(new CdkpipelinesDemoStage(this, 'PreProd', {
+            env: { account: '810526023897', region: 'us-east-1' }
+          }));
     }
 }
