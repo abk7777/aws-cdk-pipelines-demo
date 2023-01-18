@@ -29,9 +29,28 @@ export class CdkpipelinesDemoPipelineStack extends Stack {
         });
 
         // This is where we add the application stages
-        const devStage = pipeline.addStage(new CdkpipelinesDemoStage(this, 'DEV', {
+        const dev = new CdkpipelinesDemoStage(this, 'DEV', {
             env: { account: '810526023897', region: 'us-east-1' }
-        }));
+        });
+
+        const devStage = pipeline.addStage(dev, {
+            post: [
+              new ShellStep('TestService', {
+                commands: [
+                  // Use 'curl' to GET the given URL and fail if it returns an error
+                  'curl -Ssf $ENDPOINT_URL',
+                ],
+                envFromCfnOutputs: {
+                  // Get the stack Output from the Stage and make it available in
+                  // the shell script as $ENDPOINT_URL.
+                  ENDPOINT_URL: dev.urlOutput,
+                },
+              }),
+        
+            ],
+          });
+        
+
         // add manual approval step
         devStage.addPost(new ManualApprovalStep('approval'));
 
