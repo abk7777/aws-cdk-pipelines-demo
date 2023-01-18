@@ -1,35 +1,36 @@
-import * as apigw from '@aws-cdk/aws-apigateway';
-import * as lambda from '@aws-cdk/aws-lambda';
-import { CfnOutput, Construct, Stack, StackProps } from '@aws-cdk/core';
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import { aws_apigateway as apigw } from 'aws-cdk-lib';
+import { aws_lambda as lambda } from 'aws-cdk-lib';
 import * as path from 'path';
 
 /**
  * A stack for our simple Lambda-powered web service
  */
-export class CdkpipelinesDemoStack extends Stack {
-  /**
-   * The URL of the API Gateway endpoint, for use in the integ tests
-   */
-  public readonly urlOutput: CfnOutput;
- 
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
+export class CdkpipelinesDemoStack extends cdk.Stack {
+    /**
+     * The URL of the API Gateway endpoint, for use in the integ tests
+     */
+    public readonly urlOutput: cdk.CfnOutput;
 
-    // The Lambda function that contains the functionality
-    const handler = new lambda.Function(this, 'Lambda', {
-      runtime: lambda.Runtime.NODEJS_12_X,
-      handler: 'handler.handler',
-      code: lambda.Code.fromAsset(path.resolve(__dirname, 'lambda')),
-    });
+    constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+        super(scope, id, props);
 
-    // An API Gateway to make the Lambda web-accessible
-    const gw = new apigw.LambdaRestApi(this, 'Gateway', {
-      description: 'Endpoint for a simple Lambda-powered web service',
-      handler,
-    });
+        // The Lambda function that contains the functionality
+        const handler = new lambda.Function(this, 'Lambda', {
+            runtime: lambda.Runtime.NODEJS_14_X,
+            handler: 'handler.handler',
+            code: lambda.Code.fromAsset(path.resolve(__dirname, 'lambda')),
+        });
 
-    this.urlOutput = new CfnOutput(this, 'Url', {
-      value: gw.url,
-    });
-  }
+        // An API Gateway to make the Lambda web-accessible
+        const gw = new apigw.LambdaRestApi(this, 'Gateway', {
+            description: 'Endpoint for a simple Lambda-powered web service',
+            handler,
+        });
+
+        this.urlOutput = new cdk.CfnOutput(this, 'Url', {
+            value: gw.url,
+        });
+    }
 }
